@@ -1,4 +1,3 @@
-var globals = require('../config/constant');
 const twilio = require('twilio');
 
 var common = {
