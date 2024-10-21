@@ -3,8 +3,11 @@ const { default: mongoose } = require('mongoose');
 const Codes = require('../../../../config/status_code');
 const middleware = require('../../../../middleware/headerValidators');
 const userModel = require('../../../schema/tbl_users');
+const ecardModel = require('../../../schema/tbl_ecard');
+const cmsModel = require('../../../schema/tbl_cms');
 const moment = require('moment');
 const common = require('../../../../config/common');
+const otpTemplate = require('../../../../config/template');
 const cryptoLib = require('cryptlib');
 const { AwsInstance } = require('twilio/lib/rest/accounts/v1/credential/aws');
 const shakey = cryptoLib.getHashSha256(process.env.KEY, 32);
@@ -41,9 +44,6 @@ const authModel = {
     },
 
 
-
-
-
     /*=============================================================================================================================
                                                              SINGUP
    =============================================================================================================================*/
@@ -60,6 +60,7 @@ const authModel = {
         const obj={
             fname:req.fname,
             email:req.email,
+            otp_Code:"",
             password:req.password ? cryptoLib.encrypt(req.password,shakey,process.env.IV): '',
         }
 
@@ -83,90 +84,6 @@ const authModel = {
     }
    },
 
-
-   async verifyOtp(req,res){
-    try {
-        if(!req.id || !req.otp|| !req.type){
-            return middleware.sendResponse(res, Codes.BAD_REQUEST, 'Missing required fields',null);
-        }
-
-        const  findUser = await userModel.findById(req.id);
-        if (!findUser) {
-            return middleware.sendResponse(res.Codes.NOT_FOUND,'User Not Found ',null)
-        } 
-
-        if (findUser.otp !== req.otp) {
-            return middleware.sendResponse(res,Codes.INVALID,'invalid otp',null);
-        }
-
-        let updateParams;
-        if (req.type === 'otp_signup') {
-            updateParams = {
-                otp_time: null,
-                otp: null,
-                is_step: '2',
-                is_verify: '1'
-            };
-        } else if (req.type === 'otp_forget') {
-            updateParams = {
-                otp_time: null,
-                otp: null,
-                is_forget: '0'
-            };
-        } else {
-            return middleware.sendResponse(res, Codes.BAD_REQUEST, 'Invalid OTP type', null);
-        }
-        const  updateUser= await userModel.findByIdAndUpdate(findUser._id , updateParams , {new :true});
-        if (updateUser) {
-            return middleware.sendResponse(res,Codes.SUCCESS,'OTP Verified',null);
-
-        }else{
-            return middleware.sendResponse(res,Codes.INTERNAL_ERROR,'Failed to update error', null)
-            
-        }
-
-    }catch (error) {
-
-            return middleware.sendResponse(res, Codes.INTERNAL_ERROR, 'Something went wrong', error);
-        }
-
-
-      
-   },
-
-
-   async resendOtp(req,res){
-    try {
-        let otp = await common.generateOTP();
-        const findUser = await userModel.findById(req.user_id)
-         if (!findUser) {
-            return  middleware.sendResponse(res,Codes.NOT_FOUND,'User Not Found',null);
-         }
-
-         let param = {
-            otp:otp,
-            otp_time:new Date()
-         };
-
-         const UpdateUser= await userModel.findByIdAndUpdate(req.user_id,param,{new:true});
-         if (UpdateUser) {
-            const mobileNumber = `${findUser.country_code}${findUser.phone}`;
-            const message = `Welcome to our service! Your re-send OTP is ${otp}`;
-
-            const smsSent = await common.sendSMS(mobileNumber, message);
-
-            if (smsSent) {
-                return middleware.sendResponse(res, Codes.SUCCESS, 'OTP sent successfully', null);
-            } else {
-                return middleware.sendResponse(res, Codes.INTERNAL_ERROR, 'Failed to send OTP', null);
-            }
-         }else {
-            return middleware.sendResponse(res, Codes.INTERNAL_ERROR, 'Failed to update OTP', null);
-        }
-    }catch(error){
-        return middleware.sendResponse(res, Codes.INTERNAL_ERROR,'something went wrong',error)
-    }
-   },
 
    async login(req,res){
     console.log("--------------------reerer",req);
@@ -226,68 +143,158 @@ const authModel = {
         
     },
 
+    /*=============================================================================================================================
+                                                            FORGOT PASSWORD SEND OTP   
+    =============================================================================================================================*/
+    async forgotOtp(req, res) {
+        try {
+            const findUser = await userModel.findOne({ email: req.email});
+            if (!findUser) {
+                return middleware.sendResponse(res, Codes.NOT_FOUND, 'User not found', null);
+            }
+            let otp = await common.generateOTP();
+            let param = {
+                otp: otp,
+            }
+            const updateUser = await userModel.findByIdAndUpdate(findUser._id, param, { new: true });
+            if (updateUser) {
+                const mailOptions      = otpTemplate.verify_otp(otp);
+                const emailSent = await common.send_email(`Your OTP for verification`, findUser.email, mailOptions);
+                if (emailSent) {
+                    return middleware.sendResponse(res, Codes.SUCCESS, 'OTP sent successfully', null);
 
+                } else {
+                    return middleware.sendResponse(res, Codes.INTERNAL_ERROR, 'Failed to send OTP', null);
+
+                }
+            } else {
+                return middleware.sendResponse(res, Codes.INTERNAL_ERROR, 'Failed to update OTP', null);
+            }
+
+
+        } catch (error) {
+
+            return middleware.sendResponse(res, Codes.INTERNAL_ERROR, 'Something went wrong', error);
+
+        }
+    },
+
+
+    async addcard(req,res){
+        try{
+
+            const checkUniqueEmail = await authModel.checkUniqueEmail(req);
+            if(checkUniqueEmail){
+                return middleware.sendResponse(res, Codes.ALREADY_EXISTS,'please check your email',null);
+            }
+    
+            const obj={
+                fname:req.fname,
+                email:req.email,
+                jtitle:req.jtitle,
+                email:req.email,
+                cname:req.cname,
+                bio:req.bio,
+                website:req.website,
+              
+            }
+    
+            const newUser = new ecardModel(obj);
+            const response = await newUser.save()
+    
+            if (response) {
+                    return middleware.sendResponse(res, Codes.SUCCESS, 'add card  Success', response);
+              
+            }
+            else {
+                return middleware.sendResponse(res, Codes.INTERNAL_ERROR, 'Signup Failed', null);
+            }
+    
+        } catch (error){
+            console.log("---------erererer",error);
+    
+            return middleware.sendResponse(res, Codes.INTERNAL_ERROR, 'Something went wrong', error);
+    
+        }
+       },
+    
+
+    async editcard(req,res){
+        try{
+
+            const checkUniqueEmail = await authModel.checkUniqueEmail(req);
+            if(checkUniqueEmail){
+                return middleware.sendResponse(res, Codes.ALREADY_EXISTS,'please check your email',null);
+            }
+    
+            const obj={
+                fname:req.fname,
+                email:req.email,
+                jtitle:req.jtitle,
+                email:req.email,
+                cname:req.cname,
+                bio:req.bio,
+                website:req.website,
+              
+            }
+            const updateUser = await ecardModel.findByIdAndUpdate(req.id, obj, { new: true });
+
+            if (updateUser) {
+                    return middleware.sendResponse(res, Codes.SUCCESS, 'edit card  Success', null);
+              
+            }
+            else {
+                return middleware.sendResponse(res, Codes.INTERNAL_ERROR, 'Signup Failed', null);
+            }
+    
+        } catch (error){
+            console.log("---------erererer",error);
+    
+            return middleware.sendResponse(res, Codes.INTERNAL_ERROR, 'Something went wrong', error);
+    
+        }
+       },
+    
 
     /*=============================================================================================================================
-                                                          changepassword
+                                                          VIEW PROFILE   
     =============================================================================================================================*/
 
-    async changepassword(req,res){
+    async cardlisting(req,res){
         try {
-            const findUser =  await userModel.findOne({_id : req.user_id})
+            const findUser =  await ecardModel.find()
             if (!findUser) {
-                const password = cryptoLib.decrypt(findUser[0].password, shakey, process.env.IV);
-                if (password !=req.old_password) {
-                    return middleware.sendResponse(res, Codes.INVALID_CREDENTIALS, 'Old password is incorrect', null);
-                    
-                }else if(req.new_password == password){
-
-                    return middleware.sendResponse(res, Codes.INVALID_CREDENTIALS, 'New password should be different from old password', null);
-                } else if (req.new_password !== req.confirm_password) {
-                    return middleware.sendResponse(res, Codes.INVALID_CREDENTIALS, 'New password and confirm password should be same', null);
-                }else {
-                    let param ={
-                        password : cryptoLib.encrypt(req.new_password,shakey,process.env.IV)
-                    }
-
-                    const updatePassword= await authModel.updateOne({_id:req.userId},{$set : param});
-
-                    if (updatePassword) {
-                        return middleware.sendResponse(res, Codes.SUCCESS,'password change successfully',null)
-                    } else {
-            return middleware.sendResponse(res, Codes.INTERNAL_ERROR,'something went wrong',null)
-                        
-                    }
-                }
+                
                 return middleware.sendResponse(res, Codes.NOT_FOUND, 'User not found', null);
             }else{
-                return middleware.sendResponse(res, Codes.SUCCESS, 'Profile found', findUser);
+                return middleware.sendResponse(res, Codes.SUCCESS, 'details found', findUser);
 
             }
         }catch(error){
             return middleware.sendResponse(res, Codes.INTERNAL_ERROR,'something went wrong',error)
         }
         
-    }
+    },
 
 
 
+    async cmspages(req,res){
+        try {
+            console.log("-------------------",req.title);
+            const findData =  await cmsModel.findOne({title:req.title})
+            
+            if (!findData) {
+                
+                return middleware.sendResponse(res, Codes.NOT_FOUND, 'User not found', null);
+            }else{
+                return middleware.sendResponse(res, Codes.SUCCESS, 'details found', findData);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            }
+        }catch(error){
+            return middleware.sendResponse(res, Codes.INTERNAL_ERROR,'something went wrong',error)
+        }
+        
+    },
 
 
 

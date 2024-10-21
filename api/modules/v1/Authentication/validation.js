@@ -5,27 +5,41 @@ const checkValidationsRules = {
         email: 'required|email',
         password: 'required',
     },
+
+    addcardValidation: {
+        fname: 'required',
+        email: 'required',
+        jtitle: 'required',
+        cname: 'required',
+        bio: 'required',
+        website: 'required',
+    },
+
+    editValidation: {
+        id: 'required',
+      
+    },
+
+    cmspValidation: {
+        title: 'required',
+      
+    },
+
     signinValidation: {
         email: 'required|email',
         password: 'required',
     },
 
   
-    forgotPassword: {
-        new_password: 'required',
-        confirm_password: 'required',
+    
+    forgotOtp: {
+        email: 'required',
     },
 
     login: {
         email: 'required',
         // password: 'required',
     },
-    changePassword: {
-        old_password: 'required',
-        new_password: 'required',
-        confirm_password: 'required',
-    },
-
   
 
 

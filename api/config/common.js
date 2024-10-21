@@ -4,7 +4,8 @@ var common = {
 
     // *========================================GENRATE OTP===============================================* //
     async generateOTP() {
-        const otp = await Math.floor(1000 + Math.random() * 9000)
+        const otp = await Math.floor(1000 + Math.random() * 9000)      
+
         return otp;
     },
 
@@ -41,6 +42,33 @@ var common = {
         } else {
             console.error('Invalid mobile number or message');
             return false;
+        }
+    },
+
+     // ========================================SEND EMAIL=============================================== //
+     send_email: async function (subject, to_email, message) {
+        try {
+            let transporter = require('nodemailer').createTransport({
+                service: 'gmail',
+                auth: {
+                    user:process.env.EMAIL_ID,
+                    pass: process.env.EMAIL_PASSWORD
+                }
+            });
+
+            const mailOptions = {
+                from: process.env.EMAIL_ID,
+                to: to_email,
+                subject: subject,
+                html: message,
+            };
+
+            // Using await to send the email
+            await transporter.sendMail(mailOptions);
+            return true; // Email sent successfully
+        } catch (error) {
+            console.error('Error sending email:', error);
+            return false; // Email sending failed
         }
     }
 
