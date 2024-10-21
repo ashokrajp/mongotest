@@ -177,11 +177,14 @@ const authModel = {
         is_active:{ $eq :'1'},
         is_delete:{ $eq :'0'}
       })
+    console.log("--------------------findUser",findUser);
       
       if(!findUser){
         return middleware.sendResponse(res,Codes.NOT_FOUND, 'no data found',error)
       }
       let password =cryptoLib.decrypt(findUser.password,shakey,process.env.IV);
+    console.log("--------------------password",password);
+
       if(password !==   req.password){
         return middleware.sendResponse(res,Codes.INTERNAL_ERROR,'Invalid request',null)
     } else {
