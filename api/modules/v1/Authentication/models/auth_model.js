@@ -169,6 +169,8 @@ const authModel = {
    },
 
    async login(req,res){
+    console.log("--------------------reerer",req);
+    
     try {
       const findUser = await userModel.findOne({
         email:req.email,
