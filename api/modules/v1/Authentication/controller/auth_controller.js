@@ -82,7 +82,7 @@ const addcard = async(req,res)=>{
 
 }
 
-//*==================================================SIGNUP======================================================*//
+//*==================================================edit card======================================================*//
 
 
 const editcard = async(req,res)=>{
@@ -94,6 +94,24 @@ const editcard = async(req,res)=>{
     
     if(valid.status){
         return authModel.editcard(request,res)
+    }else{
+        return middleware.sendResponse(res, Codes.VALIDATION_ERROR,valid.error,null)
+    }
+
+
+}
+//*==================================================edit card======================================================*//
+
+
+const editprofile = async(req,res)=>{
+    const valid = await middleware.checkValidationRules(req.body,checkValidationRule.editdataprofile);
+
+    const request=req.body;
+    // console.log('reqqqqqqq', request)
+    console.log("---calid",valid.status);
+    
+    if(valid.status){
+        return authModel.editprofile(request,res)
     }else{
         return middleware.sendResponse(res, Codes.VALIDATION_ERROR,valid.error,null)
     }
@@ -137,5 +155,6 @@ module.exports = {
     editcard,
     cardlisting,
     cmspages,
+    editprofile,
  
 }

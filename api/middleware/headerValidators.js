@@ -178,8 +178,8 @@ const headerValidator = {
                     responsejson.data = resData;
 
                 }
-                const result = await headerValidator.encryption(responsejson);
-                res.send(JSON.stringify(result));
+                // const result = await headerValidator.encryption(responsejson);
+                res.send(responsejson);
                 // resolve(result);
             } catch (error) {
                 reject(error);

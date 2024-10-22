@@ -298,6 +298,38 @@ const authModel = {
 
 
 
+    async editprofile(req,res){
+        try{
+
+            const checkUniqueEmail = await authModel.checkUniqueEmail(req);
+            if(checkUniqueEmail){
+                return middleware.sendResponse(res, Codes.ALREADY_EXISTS,'please check your email',null);
+            }
+    
+            const obj={
+                fname:req.fname,
+                email:req.email,
+               password:req.password
+              
+            }
+            const updateUser = await userModel.findByIdAndUpdate(req.user_id, obj, { new: true });
+
+            if (updateUser) {
+                    return middleware.sendResponse(res, Codes.SUCCESS, 'edit profile  Success', null);
+              
+            }
+            else {
+                return middleware.sendResponse(res, Codes.INTERNAL_ERROR, 'Signup Failed', null);
+            }
+    
+        } catch (error){
+            console.log("---------erererer",error);
+    
+            return middleware.sendResponse(res, Codes.INTERNAL_ERROR, 'Something went wrong', error);
+    
+        }
+       },
+    
 }
 
 

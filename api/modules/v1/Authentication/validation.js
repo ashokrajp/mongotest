@@ -19,6 +19,10 @@ const checkValidationsRules = {
         id: 'required',
       
     },
+    editdataprofile: {
+        user_id: 'required',
+      
+    },
 
     cmspValidation: {
         title: 'required',
@@ -37,8 +41,8 @@ const checkValidationsRules = {
     },
 
     login: {
-        email: 'required',
-        // password: 'required',
+         email: 'required',
+        password: 'required',
     },
   
 
