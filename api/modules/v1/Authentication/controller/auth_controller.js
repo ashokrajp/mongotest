@@ -181,6 +181,14 @@ const logout = async (req,res)=>{
 
     return authModel.logOut(req.body,res)
 }
+//*==================================================LOGIN======================================================*//
+
+const deletecard = async (req,res)=>{
+   
+    console.log("--------------------rerer", req.body.card_id);
+    
+    return authModel.deleteCard(req.body,res)
+}
 
 module.exports = {
     singup,
@@ -195,5 +203,6 @@ module.exports = {
     contactus,
     logout,
     resetpasssword,
+    deletecard,
  
 }

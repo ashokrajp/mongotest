@@ -100,13 +100,13 @@ const authModel = {
     console.log("--------------------findUser",findUser);
       
       if(!findUser){
-        return middleware.sendResponse(res,Codes.NOT_FOUND, 'no data found',error)
+        return middleware.sendResponse(res,Codes.NOT_FOUND, "email doesn't exist",error)
       }
       let password =findUser.password;
     console.log("--------------------password",password);
 
       if(password !==   req.password){
-        return middleware.sendResponse(res,Codes.INTERNAL_ERROR,'Invalid request',null)
+        return middleware.sendResponse(res,Codes.INTERNAL_ERROR,'password is incorrect ',null)
     } else {
         let token = common.generateToken(32);
         let param = {
@@ -261,7 +261,10 @@ const authModel = {
 
     async cardlisting(req,res){
         try {
-            const findUser =  await ecardModel.find()
+            const findUser =  await ecardModel.find({
+                is_active:{ $eq :'1'},
+                is_delete:{ $eq :'0'}
+            })
             if (!findUser) {
                 
                 return middleware.sendResponse(res, Codes.NOT_FOUND, 'User not found', null);
@@ -416,6 +419,37 @@ const authModel = {
             }
             else {
                 return middleware.sendResponse(res, Codes.INTERNAL_ERROR, 'reset Failed', null);
+            }
+
+            }
+        }catch(error){
+            return middleware.sendResponse(res, Codes.INTERNAL_ERROR,'something went wrong',error)
+        }
+        
+    },
+    async deleteCard(req,res){
+        console.log("---------------erererer",req);
+        
+        try {
+            const findUser = await ecardModel.findOne({
+                _id:req.card_id,
+              })
+
+              console.log("dddddddddddd",findUser);
+            if (!findUser) {
+                
+                return middleware.sendResponse(res, Codes.NOT_FOUND, ' not found', null);
+            }else{
+
+           
+            const updateCard = await ecardModel.deleteOne({_id: findUser._id});
+
+            if (updateCard) {
+                    return middleware.sendResponse(res, Codes.SUCCESS, 'delete  Success', null);
+              
+            }
+            else {
+                return middleware.sendResponse(res, Codes.INTERNAL_ERROR, 'delete Failed', null);
             }
 
             }

@@ -17,5 +17,6 @@ router.post('/cmspages', AuthController.cmspages)
 router.post('/contactus', AuthController.contactus)
 router.post('/logout', AuthController.logout)
 router.post('/resetpassword', AuthController.resetpasssword)
+router.post('/deletecard', AuthController.deletecard)
 
 module.exports = router;
