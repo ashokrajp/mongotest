@@ -51,8 +51,8 @@ var common = {
             let transporter = require('nodemailer').createTransport({
                 service: 'gmail',
                 auth: {
-                    user:process.env.EMAIL_ID,
-                    pass: process.env.EMAIL_PASSWORD
+                    user:'manthanpatel716@gmail.com',
+                    pass: 'fwpm cfta lseg fjqk'
                 }
             });
 

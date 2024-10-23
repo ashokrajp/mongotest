@@ -51,7 +51,7 @@ const viewprofile = async (req,res)=>{
 
 /*==================================================FORGOT OTP======================================================*/
 const forgotpassword = async (req, res) => {
-    const valid = await middleware.checkValidationRules(req.body, checkValidationRule.forgotOtp);
+    const valid = await middleware.checkValidationRules(req.body,checkValidationRule.forgotOtp);
     const request = {
         ...req.body,
     }
