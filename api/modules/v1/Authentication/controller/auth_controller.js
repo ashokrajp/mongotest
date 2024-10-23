@@ -165,6 +165,15 @@ const contactus = async(req,res)=>{
 
 }
 
+
+//*==================================================reset password======================================================*//
+
+
+const resetpasssword = async(req,res)=>{
+    const request=req.body
+        return authModel.resetPassword(request,res)
+}
+
 //*==================================================LOGIN======================================================*//
 
 const logout = async (req,res)=>{
@@ -185,5 +194,6 @@ module.exports = {
     editprofile,
     contactus,
     logout,
+    resetpasssword,
  
 }

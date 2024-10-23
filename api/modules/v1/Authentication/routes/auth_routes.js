@@ -16,5 +16,6 @@ router.post('/cardlisting', AuthController.cardlisting)
 router.post('/cmspages', AuthController.cmspages)
 router.post('/contactus', AuthController.contactus)
 router.post('/logout', AuthController.logout)
+router.post('/resetpassword', AuthController.resetpasssword)
 
 module.exports = router;

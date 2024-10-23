@@ -392,6 +392,39 @@ const authModel = {
         
     },
 
+    async resetPassword(req,res){
+        try {
+            const findUser = await userModel.findOne({
+                email:req.email,
+              })
+
+              console.log("dddddddddddd",findUser);
+              
+            if (!findUser) {
+                
+                return middleware.sendResponse(res, Codes.NOT_FOUND, 'User not found', null);
+            }else{
+
+              const obj={
+                password:req.password,
+            }
+            const updateUser = await userModel.findByIdAndUpdate(findUser._id, obj, { new: true });
+
+            if (updateUser) {
+                    return middleware.sendResponse(res, Codes.SUCCESS, 'reset password  Success', null);
+              
+            }
+            else {
+                return middleware.sendResponse(res, Codes.INTERNAL_ERROR, 'reset Failed', null);
+            }
+
+            }
+        }catch(error){
+            return middleware.sendResponse(res, Codes.INTERNAL_ERROR,'something went wrong',error)
+        }
+        
+    },
+
 }
 
 
