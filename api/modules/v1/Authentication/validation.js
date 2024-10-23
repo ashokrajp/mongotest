@@ -6,6 +6,12 @@ const checkValidationsRules = {
         password: 'required',
     },
 
+    contactusdata: {
+        fname: 'required',
+        email: 'required',
+        description: 'required',
+    },
+
     addcardValidation: {
         fname: 'required',
         email: 'required',

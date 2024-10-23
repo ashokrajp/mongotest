@@ -146,6 +146,33 @@ const cmspages = async(req,res)=>{
 
 }
 
+
+
+//*==================================================SIGNUP======================================================*//
+
+
+const contactus = async(req,res)=>{
+    const valid = await middleware.checkValidationRules(req.body,checkValidationRule.contactusdata);
+
+    const request=req.body
+
+    if(valid.status){
+        return authModel.contactUs(request,res)
+    }else{
+        return middleware.sendResponse(res, Codes.VALIDATION_ERROR,valid.error,null)
+    }
+
+
+}
+
+//*==================================================LOGIN======================================================*//
+
+const logout = async (req,res)=>{
+    req.body.userId=req.user_id
+
+    return authModel.logOut(req.body,res)
+}
+
 module.exports = {
     singup,
     viewprofile,
@@ -156,5 +183,7 @@ module.exports = {
     cardlisting,
     cmspages,
     editprofile,
+    contactus,
+    logout,
  
 }

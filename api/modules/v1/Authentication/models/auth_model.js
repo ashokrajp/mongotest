@@ -5,6 +5,7 @@ const middleware = require('../../../../middleware/headerValidators');
 const userModel = require('../../../schema/tbl_users');
 const ecardModel = require('../../../schema/tbl_ecard');
 const cmsModel = require('../../../schema/tbl_cms');
+const contactModel = require('../../../schema/tbl_contactus');
 const moment = require('moment');
 const common = require('../../../../config/common');
 const otpTemplate = require('../../../../config/template');
@@ -18,16 +19,18 @@ const authModel = {
 
 
     //*========================================CHECK UNIQUE EMAILS=================================================*//
-    async checkUniqueEmail(req) {
+    async checkUniqueEmail(req , user_id) {
         try {
-            const user = await userModel.findOne({
-                email: req.email
-            });
+            let condition = {email: req.email};
+            user_id != undefined && user_id != '' ? condition = {email: req.email, _id: {$ne: user_id}} : condition;
+            const user = await userModel.findOne(condition)
             return user ? true : false;
         } catch (err) {
 
             return err;
         }
+
+     
     },
 
     //*========================================CHECK UNIQUE PHONE=================================================*//
@@ -37,7 +40,7 @@ const authModel = {
                 phone: req.phone
             });
             return user ? true : false;
-        } catch (err) {
+        } catch (err) { 
 
             return err
         }
@@ -50,7 +53,7 @@ const authModel = {
 
    async signup(req,res){
     try{
-        const checkUniqueEmail = await authModel.checkUniqueEmail(req);
+        const checkUniqueEmail = await authModel.checkUniqueEmail(req,'');
         if(checkUniqueEmail){
             return middleware.sendResponse(res, Codes.ALREADY_EXISTS,'please check your email',null);
         }
@@ -218,10 +221,10 @@ const authModel = {
     async editcard(req,res){
         try{
 
-            const checkUniqueEmail = await authModel.checkUniqueEmail(req);
-            if(checkUniqueEmail){
-                return middleware.sendResponse(res, Codes.ALREADY_EXISTS,'please check your email',null);
-            }
+            // const checkUniqueEmail = await authModel.checkUniqueEmail(req);
+            // if(checkUniqueEmail){
+            //     return middleware.sendResponse(res, Codes.ALREADY_EXISTS,'please check your email',null);
+            // }
     
             const obj={
                 fname:req.fname,
@@ -297,7 +300,7 @@ const authModel = {
     async editprofile(req,res){
         try{
 
-            const checkUniqueEmail = await authModel.checkUniqueEmail(req);
+            const checkUniqueEmail = await authModel.checkUniqueEmail(req,req.user_id);
             if(checkUniqueEmail){
                 return middleware.sendResponse(res, Codes.ALREADY_EXISTS,'please check your email',null);
             }
@@ -326,6 +329,69 @@ const authModel = {
         }
        },
     
+
+
+    /*=============================================================================================================================
+                                                             contact us
+   =============================================================================================================================*/
+
+   async contactUs(req,res){
+    try{
+
+        const obj={
+            fname:req.fname,
+            email:req.email,
+            description:req.description,
+        }
+
+        const newUser = new contactModel(obj);
+        const response = await newUser.save()
+
+        if (response) {
+                return middleware.sendResponse(res, Codes.SUCCESS, 'contact us Success', response);
+          
+        }
+        else {
+            return middleware.sendResponse(res, Codes.INTERNAL_ERROR, 'contact Failed', null);
+        }
+
+    } catch (error){
+        console.log("---------erererer",error);
+
+        return middleware.sendResponse(res, Codes.INTERNAL_ERROR, 'Something went wrong', error);
+
+    }
+   },
+
+
+    async logOut(req,res){
+        try {
+            const findUser =  await userModel.findOne({_id : req.user_id})
+            if (!findUser) {
+                
+                return middleware.sendResponse(res, Codes.NOT_FOUND, 'User not found', null);
+            }else{
+
+              const obj={
+                token:'',
+            }
+            const updateUser = await userModel.findByIdAndUpdate(req.user_id, obj, { new: true });
+
+            if (updateUser) {
+                    return middleware.sendResponse(res, Codes.SUCCESS, 'logout  Success', null);
+              
+            }
+            else {
+                return middleware.sendResponse(res, Codes.INTERNAL_ERROR, 'logout Failed', null);
+            }
+
+            }
+        }catch(error){
+            return middleware.sendResponse(res, Codes.INTERNAL_ERROR,'something went wrong',error)
+        }
+        
+    },
+
 }
 
 

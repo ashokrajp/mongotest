@@ -14,5 +14,7 @@ router.post('/editcard', AuthController.editcard)
 router.post('/editprofile', AuthController.editprofile)
 router.post('/cardlisting', AuthController.cardlisting)
 router.post('/cmspages', AuthController.cmspages)
+router.post('/contactus', AuthController.contactus)
+router.post('/logout', AuthController.logout)
 
 module.exports = router;
