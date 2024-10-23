@@ -164,7 +164,7 @@ const authModel = {
                 const mailOptions      = otpTemplate.verify_otp(otp);
                 const emailSent = await common.send_email(`Your OTP for verification`, findUser.email, mailOptions);
                 if (emailSent) {
-                    return middleware.sendResponse(res, Codes.SUCCESS, 'OTP sent successfully', null);
+                    return middleware.sendResponse(res, Codes.SUCCESS, 'OTP sent successfully', otp);
 
                 } else {
                     return middleware.sendResponse(res, Codes.INTERNAL_ERROR, 'Failed to send OTP', null);
