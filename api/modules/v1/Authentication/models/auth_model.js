@@ -61,7 +61,7 @@ const authModel = {
             fname:req.fname,
             email:req.email,
             otp_Code:"",
-            password:req.password ? cryptoLib.encrypt(req.password,shakey,process.env.IV): '',
+            password:req.password,
         }
 
         const newUser = new userModel(obj);
@@ -99,7 +99,7 @@ const authModel = {
       if(!findUser){
         return middleware.sendResponse(res,Codes.NOT_FOUND, 'no data found',error)
       }
-      let password =cryptoLib.decrypt(findUser.password,shakey,process.env.IV);
+      let password =findUser.password;
     console.log("--------------------password",password);
 
       if(password !==   req.password){
@@ -183,11 +183,7 @@ const authModel = {
     async addcard(req,res){
         try{
 
-            const checkUniqueEmail = await authModel.checkUniqueEmail(req);
-            if(checkUniqueEmail){
-                return middleware.sendResponse(res, Codes.ALREADY_EXISTS,'please check your email',null);
-            }
-    
+           
             const obj={
                 fname:req.fname,
                 email:req.email,
