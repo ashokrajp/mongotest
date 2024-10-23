@@ -351,7 +351,16 @@ const authModel = {
         const response = await newUser.save()
 
         if (response) {
+            const mailOptions = otpTemplate.contactus(req);
+            const emailSent = await common.send_email(`Your contact us`, req.email, mailOptions);
+            if (emailSent) {
+                // return middleware.sendResponse(res, Codes.SUCCESS, 'OTP sent successfully', otp);
                 return middleware.sendResponse(res, Codes.SUCCESS, 'contact us Success', response);
+
+            } else {
+                return middleware.sendResponse(res, Codes.INTERNAL_ERROR, 'Failed to send OTP', null);
+
+            }
           
         }
         else {

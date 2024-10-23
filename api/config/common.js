@@ -47,6 +47,8 @@ var common = {
 
      // ========================================SEND EMAIL=============================================== //
      send_email: async function (subject, to_email, message) {
+    console.log("----sdfsdfsdfsdfsdfsd-",to_email);
+    
         try {
             let transporter = require('nodemailer').createTransport({
                 service: 'gmail',
@@ -57,7 +59,7 @@ var common = {
             });
 
             const mailOptions = {
-                from: process.env.EMAIL_ID,
+                from: 'manthanpatel716@gmail.com',
                 to: to_email,
                 subject: subject,
                 html: message,
