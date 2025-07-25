@@ -30,11 +30,11 @@ const userSchema = mongoose.Schema({
         require: true
     },
     colors: {
-        type: String,
+        type: Array,
         require: true
     },
     sizes: {
-        type: String,
+        type: Array,
         require: true
     },
     rating: {
