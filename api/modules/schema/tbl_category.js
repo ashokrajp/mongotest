@@ -3,16 +3,13 @@ let mongoose = require('mongoose')
 
 const userSchema = mongoose.Schema({
   
-    title: {
+ 
+    name: {
         type: String,
     },
-    content: {
-        type: String,
-        default: null,
-    }
-    
+   
 
 })
 
-const userModel = mongoose.model('tbl_cms', userSchema);
+const userModel = mongoose.model('tbl_category', userSchema);
 module.exports = userModel; 

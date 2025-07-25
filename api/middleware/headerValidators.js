@@ -2,7 +2,7 @@
 const Validator = require('Validator');
 // const lang = require("../config/language");
 const Codes = require('../config/status_code');
-const userModel = require("../modules/schema/tbl_users");
+const userModel = require("../modules/schema/tbl_product");
 
 // const SECRET = crypto.enc.Hex.parse(process.env.API_SECRET);
 // const API_IV = crypto.enc.Hex.parse(process.env.API_IV);
