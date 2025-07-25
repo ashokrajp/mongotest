@@ -277,6 +277,57 @@ const authModel = {
         }
         
     },
+    async productListing(req,res){
+        try {
+            const findUser =  await userModel.find();
+            console.log('findUser: ', findUser);
+            if (!findUser) {
+                
+                return middleware.sendResponse(res, Codes.NOT_FOUND, 'User not found', null);
+            }else{
+                return middleware.sendResponse(res, Codes.SUCCESS, 'details found', findUser);
+
+            }
+        }catch(error){
+            console.log('error: ', error);
+            return middleware.sendResponse(res, Codes.INTERNAL_ERROR,'something went wrong',error)
+        }
+        
+    },
+    async bannerListing(req,res){
+        try {
+            const findUser =  await cmsModel.find();
+            console.log('findUser: ', findUser);
+            if (!findUser) {
+                
+                return middleware.sendResponse(res, Codes.NOT_FOUND, 'User not found', null);
+            }else{
+                return middleware.sendResponse(res, Codes.SUCCESS, 'details found', findUser);
+
+            }
+        }catch(error){
+            console.log('error: ', error);
+            return middleware.sendResponse(res, Codes.INTERNAL_ERROR,'something went wrong',error)
+        }
+        
+    },
+    async categoryListing(req,res){
+        try {
+            const findUser =  await contactModel.find();
+            console.log('findUser: ', findUser);
+            if (!findUser) {
+                
+                return middleware.sendResponse(res, Codes.NOT_FOUND, 'User not found', null);
+            }else{
+                return middleware.sendResponse(res, Codes.SUCCESS, 'details found', findUser);
+
+            }
+        }catch(error){
+            console.log('error: ', error);
+            return middleware.sendResponse(res, Codes.INTERNAL_ERROR,'something went wrong',error)
+        }
+        
+    },
 
 
 

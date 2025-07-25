@@ -126,6 +126,18 @@ const brandlisting = async (req,res)=>{
 
     return authModel.brandListing(req.body,res)
 }
+const productlisting = async (req,res)=>{
+
+    return authModel.productListing(req.body,res)
+}
+const bannerlisting = async (req,res)=>{
+
+    return authModel.bannerListing(req.body,res)
+}
+const categorylisting = async (req,res)=>{
+
+    return authModel.categoryListing(req.body,res)
+}
 
 //*==================================================cms pages======================================================*//
 
@@ -191,6 +203,8 @@ const brandlisting = async (req,res)=>{
 // }
 
 module.exports = {
-   brandlisting
- 
+   brandlisting,
+   productlisting,
+   bannerlisting,
+ categorylisting
 }
